@@ -1,0 +1,5 @@
+---
+
+zabbix_version: ""
+zabbix_agent_version: ""
+zabbix_server_url: https://zabbix.taxnet.ru/zabbix/api_jsonrpc.php

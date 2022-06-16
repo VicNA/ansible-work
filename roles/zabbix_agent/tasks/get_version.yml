@@ -1,0 +1,18 @@
+---
+
+- name: Get Zabbix server version
+  local_action: 
+    module: ansible.builtin.uri
+    url: {{ zabbix_server_url }}
+    method: GET
+    body_format: json
+    src: version.json
+  register: zabbix_server_version
+
+- name: Set fact Zabbix version 
+  set_fact:
+    zabbix_version: "{{ zabbix_server_version.json.result }}"
+    
+- name: Set fact Zabbix agent version
+  set_fact:
+    zabbix_agent_version: "{{ zabbix_version.split('.')[0:2] | join('.') }}"
