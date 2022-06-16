@@ -1,0 +1,99 @@
+---
+- name: "Windows | Set architecture"
+  include_tasks: windows_architecrure.yml
+
+- name: "Windows | Check if Zabbix agent is present"
+  ansible.windows.win_stat:
+    path: '{{ item }}'
+  with_items:
+    - "{{ zabbix_win_exe_path }}"
+    - "{{ zabbix2_win_exe_path }}"
+  register: agent_file_info
+
+- name: "Windows | Get Installed Zabbix Agent Version"
+  community.windows.win_file_version:
+    path: "{{ item.item }}"
+  register: zabbix_win_exe_info
+  when:
+    - item.stat.exists | bool
+  with_items: "{{ agent_file_info.results }}"
+
+- name: "Windows | Set facts current zabbix agent installation"
+  set_fact:
+    zabbix_agent_1_binary_exist: true
+    zabbix_agent_1_version: zabbix_win_exe_info.results[0].win_file_version.product_version
+  when:
+    - zabbix_win_exe_info.results[0] is defined
+    - zabbix_win_exe_info.results[0].item.stat.exists
+    - zabbix_win_exe_info.results[0].item.stat.path == zabbix_win_exe_path
+    - zabbix_win_exe_info.results[0].win_file_version.product_version
+
+- name: "Windows | Set facts current zabbix agent installation (agent 2)"
+  set_fact:
+    zabbix_agent_2_binary_exist: true
+    zabbix_agent_2_version: zabbix_win_exe_info.results[1].win_file_version.product_version
+  when:
+    - zabbix_win_exe_info.results[1] is defined
+    - zabbix_win_exe_info.results[1].item.stat.exists
+    - zabbix_win_exe_info.results[1].item.stat.path == zabbix2_win_exe_path
+    - zabbix_win_exe_info.results[1].win_file_version.product_version
+
+- name: "Windows | Check Zabbix service"
+  ansible.windows.win_service:
+    name: "{{ (item.item.stat.path == zabbix_win_exe_path ) | ternary(zabbix_win_svc_name,zabbix2_win_svc_name) }}"
+  register: zabbix_service_info
+  when: item.item.stat.exists
+  with_items: "{{ zabbix_win_exe_info.results }}"
+
+- name: "Windows | Set facts about current zabbix agent service state"
+  set_fact:
+    zabbix_agent_1_service_exist: true
+  when:
+    - zabbix_service_info.results[0].exists is defined
+    - zabbix_service_info.results[0].exists
+    - zabbix_service_info.results[0].display_name == zabbix_win_svc_name
+
+- name: "Windows | Set facts about current zabbix agent service state (agent 2)"
+  set_fact:
+    zabbix_agent_2_service_exist: true
+  when:
+    - zabbix_service_info.results[1].exists is defined
+    - zabbix_service_info.results[1].exists
+    - zabbix_service_info.results[1].display_name == zabbix2_win_svc_name
+
+##################
+# delete section #
+##################
+
+- name: "Windows | Stop Zabbix agent v1"
+  ansible.windows.win_service:
+    name: "{{ zabbix_win_svc_name }}"
+    start_mode: auto
+    state: stopped
+  when:
+    - zabbix_agent_1_service_exist | default(false)
+
+- name: "Windows | Stop Zabbix agent v2"
+  ansible.windows.win_service:
+    name: "{{ zabbix2_win_svc_name }}"
+    start_mode: auto
+    state: stopped
+  when:
+    - zabbix_agent_2_service_exist | default(false)
+
+- name: "Windows | Uninstall Zabbix v1"
+  ansible.windows.win_command: '"{{ zabbix_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix_win_config_name }}" --uninstall'
+  when:
+    - zabbix_agent_1_service_exist | default(false)
+
+- name: "Windows | Uninstall Zabbix v2"
+  ansible.windows.win_command: '"{{ zabbix2_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix2_win_config_name }}" --uninstall'
+  when:
+    - zabbix_agent_2_service_exist | default(false)
+
+# - name: "Windows | Removing Zabbix Directory"
+#   ansible.windows.win_file:
+#     path: '{{ zabbix_win_install_dir }}'
+#     state: absent
+#   when: ((zabbix_agent_version_change | default(false) or zabbix_agent2) and zabbix_agent_1_binary_exist | default(false)) or
+#         ((zabbix_agent_version_change | default(false) or not zabbix_agent2) and zabbix_agent_2_binary_exist | default(false))

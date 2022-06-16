@@ -1,4 +1,10 @@
 ---
+# defaults file for zabbix_agent
 
-# zabbix_version: ""
-# zabbix_agent_version: ""
+zabbix_version: []
+zabbix_agent_version: []
+zabbix_server_url: https://zabbix.taxnet.ru/zabbix/api_jsonrpc.php
+
+# zabbix_agent_service: zabbix-agent
+# zabbix_agent2_service: zabbix-agent2
+# zabbix_agent_package: zabbix-agent2

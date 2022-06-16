@@ -1,14 +1,9 @@
 ---
 
-- name: Get Zabbix server version
-  include_tasks: get_version.yml
+- name: Set fact Zabbix version
+  include_tasks: zabbix_server_version.yml
   run_once: true
   when: 
     - zabbix_version | length == 0
     - zabbix_agent_version | length == 0
 
-- debug:
-    var: zabbix_version
-
-- debug:
-    var: zabbix_agent_version
