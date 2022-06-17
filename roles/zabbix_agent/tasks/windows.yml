@@ -1,6 +1,13 @@
 ---
-- name: "Windows | Set architecture"
-  include_tasks: windows_architecrure.yml
+- name: "Windows | Set default architecture"
+  set_fact:
+    windows_arch: 32
+
+- name: "Windows | Override architecture if 64-bit"
+  set_fact:
+    windows_arch: 64
+  when:
+    - ansible_architecture == "64-bit"
 
 - name: "Windows | Check if Zabbix agent is present"
   ansible.windows.win_stat:
@@ -40,7 +47,7 @@
 
 - name: "Windows | Check Zabbix service"
   ansible.windows.win_service:
-    name: "{{ (item.item.stat.path == zabbix_win_exe_path ) | ternary(zabbix_win_svc_name,zabbix2_win_svc_name) }}"
+    name: "{{ (item.item.stat.path == zabbix_win_exe_path) | ternary(zabbix_win_svc_name,zabbix2_win_svc_name) }}"
   register: zabbix_service_info
   when: item.item.stat.exists
   with_items: "{{ zabbix_win_exe_info.results }}"
@@ -61,39 +68,50 @@
     - zabbix_service_info.results[1].exists
     - zabbix_service_info.results[1].display_name == zabbix2_win_svc_name
 
-##################
-# delete section #
-##################
+# ##################
+# # delete section #
+# ##################
 
-- name: "Windows | Stop Zabbix agent v1"
-  ansible.windows.win_service:
-    name: "{{ zabbix_win_svc_name }}"
-    start_mode: auto
-    state: stopped
-  when:
-    - zabbix_agent_1_service_exist | default(false)
+# - name: "Windows | Stop Zabbix agent v1"
+#   ansible.windows.win_service:
+#     name: "{{ zabbix_win_svc_name }}"
+#     start_mode: auto
+#     state: stopped
+#   when:
+#     - zabbix_agent_1_service_exist | default(false)
 
-- name: "Windows | Stop Zabbix agent v2"
-  ansible.windows.win_service:
-    name: "{{ zabbix2_win_svc_name }}"
-    start_mode: auto
-    state: stopped
-  when:
-    - zabbix_agent_2_service_exist | default(false)
+# - name: "Windows | Stop Zabbix agent v2"
+#   ansible.windows.win_service:
+#     name: "{{ zabbix2_win_svc_name }}"
+#     start_mode: auto
+#     state: stopped
+#   when:
+#     - zabbix_agent_2_service_exist | default(false)
 
-- name: "Windows | Uninstall Zabbix v1"
-  ansible.windows.win_command: '"{{ zabbix_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix_win_config_name }}" --uninstall'
-  when:
-    - zabbix_agent_1_service_exist | default(false)
+# - name: "Windows | Uninstall Zabbix v1"
+#   ansible.windows.win_command: '"{{ zabbix_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix_win_config_name }}" --uninstall'
+#   when:
+#     - zabbix_agent_1_service_exist | default(false)
 
-- name: "Windows | Uninstall Zabbix v2"
-  ansible.windows.win_command: '"{{ zabbix2_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix2_win_config_name }}" --uninstall'
-  when:
-    - zabbix_agent_2_service_exist | default(false)
+# - name: "Windows | Uninstall Zabbix v2"
+#   ansible.windows.win_command: '"{{ zabbix2_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix2_win_config_name }}" --uninstall'
+#   when:
+#     - zabbix_agent_2_service_exist | default(false)
 
-# - name: "Windows | Removing Zabbix Directory"
+# # - name: "Windows | Removing Zabbix Directory"
+# #   ansible.windows.win_file:
+# #     path: '{{ zabbix_win_install_dir }}'
+# #     state: absent
+# #   when: ((zabbix_agent_version_change | default(false) or zabbix_agent2) and zabbix_agent_1_binary_exist | default(false)) or
+# #         ((zabbix_agent_version_change | default(false) or not zabbix_agent2) and zabbix_agent_2_binary_exist | default(false))
+
+# ###################
+# # install section #
+# ###################
+
+# - name: "Windows | Create directory structure"
 #   ansible.windows.win_file:
-#     path: '{{ zabbix_win_install_dir }}'
-#     state: absent
-#   when: ((zabbix_agent_version_change | default(false) or zabbix_agent2) and zabbix_agent_1_binary_exist | default(false)) or
-#         ((zabbix_agent_version_change | default(false) or not zabbix_agent2) and zabbix_agent_2_binary_exist | default(false))
+#     path: "{{ item }}"
+#     state: directory
+#   with_items:
+#     - "{{ zabbix_win_install_dir }}"

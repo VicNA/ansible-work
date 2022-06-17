@@ -1,9 +1,29 @@
 ---
-
 - name: Set fact Zabbix version
-  include_tasks: zabbix_server_version.yml
-  run_once: true
-  when: 
-    - zabbix_version | length == 0
-    - zabbix_agent_version | length == 0
+  block:
 
+    - name: Get Zabbix server version
+      local_action: 
+        module: ansible.builtin.uri
+        url: "{{ zabbix_server_url }}"
+        method: GET
+        body_format: json
+        src: version.json
+      register: zabbix_server_version
+
+    - name: Set fact Zabbix version 
+      set_fact:
+        zabbix_version: "{{ zabbix_server_version.json.result }}"
+  
+  when:
+    - zabbix_version | length == 0
+
+- name: Set fact Zabbix agent version
+  set_fact:
+    zabbix_agent_version: "{{ zabbix_version.split('.')[0:2] | join('.') }}"
+
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family | lower }}.yml"
+
+- name: Include OS-specific tasks
+  include_tasks: "{{ ansible_os_family | lower }}.yml"

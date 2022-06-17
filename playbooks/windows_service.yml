@@ -1,0 +1,12 @@
+---
+- hosts: rebacker
+  gather_facts: no
+
+  tasks:
+    - name: Get windows service
+      ansible.windows.win_service_info:
+        name: Zabbix Agent 2
+      register: service_info
+
+    - debug:
+        var: service_info.services
