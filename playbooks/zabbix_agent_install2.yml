@@ -1,3 +1,4 @@
+---
 - hosts: rebacker
   roles:
     - role: community.zabbix.zabbix_agent
