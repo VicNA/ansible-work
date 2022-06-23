@@ -1,4 +1,7 @@
 ---
+# ansible_architecture = 32-bit(?) | 64-bit
+windows_arch: "{{ ansible_architecture | split('-') | first }}"
+
 zabbix_win_download_url: https://cdn.zabbix.com/zabbix/binaries/stable
 zabbix_win_install_dir: 'C:\Zabbix'
 

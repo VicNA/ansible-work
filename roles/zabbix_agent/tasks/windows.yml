@@ -1,14 +1,4 @@
 ---
-- name: "Windows | Set default architecture"
-  set_fact:
-    windows_arch: 32
-
-- name: "Windows | Override architecture if 64-bit"
-  set_fact:
-    windows_arch: 64
-  when:
-    - ansible_architecture == "64-bit"
-
 - name: "Windows | Check if Zabbix agent is present"
   ansible.windows.win_stat:
     path: "{{ item }}"
@@ -25,17 +15,17 @@
     - item.stat.exists | bool
   with_items: "{{ agent_file_info.results }}"
   loop_control:
-    label: "{{ item.item }} = {{ item.stat.exists }}"
+    label: "{{ zabbix_win_exe_info.win_file_version.product_version | default('Not found') }}"
 
-- name: "Windows | Set facts current zabbix agent installation"
-  set_fact:
-    zabbix_agent_1_binary_exist: true
-    zabbix_agent_1_version: "{{ zabbix_win_exe_info.results[0].win_file_version.product_version }}"
-  when:
-    - zabbix_win_exe_info.results[0] is defined
-    - zabbix_win_exe_info.results[0].item.stat.exists
-    - zabbix_win_exe_info.results[0].item.stat.path == zabbix_win_exe_path
-    - zabbix_win_exe_info.results[0].win_file_version.product_version
+# - name: "Windows | Set facts current zabbix agent installation"
+#   set_fact:
+#     zabbix_agent_1_binary_exist: true
+#     zabbix_agent_1_version: "{{ zabbix_win_exe_info.results[0].win_file_version.product_version }}"
+#   when:
+#     - zabbix_win_exe_info.results[0] is defined
+#     - zabbix_win_exe_info.results[0].item.stat.exists
+#     - zabbix_win_exe_info.results[0].item.stat.path == zabbix_win_exe_path
+#     - zabbix_win_exe_info.results[0].win_file_version.product_version
 
 # - name: "Windows | Set facts current zabbix agent installation (agent 2)"
 #   set_fact:
@@ -47,12 +37,25 @@
 #     - zabbix_win_exe_info.results[1].item.stat.path == zabbix2_win_exe_path
 #     - zabbix_win_exe_info.results[1].win_file_version.product_version
 
-# - name: "Windows | Check Zabbix service"
-#   ansible.windows.win_service:
-#     name: "{{ (item.item.stat.path == zabbix_win_exe_path) | ternary(zabbix_win_svc_name,zabbix2_win_svc_name) }}"
-#   register: zabbix_service_info
-#   when: item.item.stat.exists
-#   with_items: "{{ zabbix_win_exe_info.results }}"
+- name: "Windows | Check Zabbix service"
+  ansible.windows.win_service:
+    name: "{{ (item.item.stat.path == zabbix_win_exe_path) | ternary(zabbix_win_svc_name,zabbix2_win_svc_name) }}"
+  register: zabbix_service_info
+  when: item.item.stat.exists
+  with_items: "{{ zabbix_win_exe_info.results }}"
+  loop_control:
+    label: "{{ zabbix_service_info.display_name | default('Not found') }}"
+
+- name: "Windows | Set facts about current zabbix agent service state"
+  set_fact:
+    zabbix_agent_service_exist: "{{ item.exists | default(false)}}"
+  when:
+    - item.exists is defined
+    - item.exists
+    - item.display_name in [zabbix_win_svc_name, zabbix2_win_svc_name]
+  with_items: "{{ zabbix_service_info.results }}"
+  loop_control:
+    label: "{{ item.display_name | default('Not found') }}"
 
 # - name: "Windows | Set facts about current zabbix agent service state"
 #   set_fact:
@@ -69,16 +72,6 @@
 #     - zabbix_service_info.results[1].exists is defined
 #     - zabbix_service_info.results[1].exists
 #     - zabbix_service_info.results[1].display_name == zabbix2_win_svc_name
-
-# - block:
-#     - name: "End play if nothing to upgrade Zabbix agent"
-#       debug:
-#         msg: "Nothing to upgrade, ending play"
-#   when:
-#     - zabbix_agent_1_version is defined
-#     - zabbix_agent_1_version == zabbix_version
-#     - zabbix_agent_2_version is defined
-#     - zabbix_agent_2_version == zabbix_version
 
 ##################
 # delete section #

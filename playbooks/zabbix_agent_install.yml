@@ -2,3 +2,4 @@
 - hosts: rebacker
   roles:
     - role: zabbix_agent
+      zabbix_server_url: https://zabbix.taxnet.ru/zabbix/api_jsonrpc.php
