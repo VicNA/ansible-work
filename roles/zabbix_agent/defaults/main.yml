@@ -1,7 +1,8 @@
 ---
 # defaults file for zabbix_agent
 
-zabbix_version: []
+zabbix_version_long: []
+zabbix_version: "{{ zabbix_version_long.split('.')[0:2] | join('.') }}"
 # zabbix_agent_version: []
 zabbix_server_url: []
 

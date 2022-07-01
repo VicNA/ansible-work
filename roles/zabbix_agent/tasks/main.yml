@@ -13,16 +13,21 @@
 
     - name: Set fact Zabbix version 
       set_fact:
-        zabbix_version: "{{ zabbix_server_version.json.result }}"
+        zabbix_version_long: "{{ zabbix_server_version.json.result }}"
   
-  when: zabbix_version | length == 0
-
-- name: Set fact Zabbix agent version
-  set_fact:
-    zabbix_agent_version: "{{ zabbix_version.split('.')[0:2] | join('.') }}"
+  when: zabbix_version_long | length == 0
 
 - name: Include OS-specific variables
   include_vars: "{{ ansible_os_family | lower }}.yml"
 
-- name: Include OS-specific tasks
-  include_tasks: "{{ ansible_os_family | lower }}.yml"
+- name: Include OS-specific tasks 1
+  include_tasks: "{{ ansible_os_family | lower }}3.yml"
+  vars:
+    zabbix_agent: agent1
+    zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"
+
+- name: Include OS-specific tasks 2
+  include_tasks: "{{ ansible_os_family | lower }}3.yml"
+  vars:
+    zabbix_agent: agent2
+    zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"

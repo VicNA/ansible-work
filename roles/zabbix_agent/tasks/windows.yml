@@ -4,8 +4,8 @@
     path: "{{ item }}"
   register: output
   loop:
-    - "{{ zabbix_win_exe_path }}"
-    - "{{ zabbix2_win_exe_path }}"
+    - "{{ zabbix_agent_exe_path }}"
+    - "{{ zabbix_agent2_exe_path }}"
 
 - name: Windows | Get installed version Zabbix agent
   community.windows.win_file_version:
@@ -17,14 +17,14 @@
     label: "{{ output.win_file_version.product_version | default('Not found') }}"
 
 - debug:
-    msg: "{{ item.1 }}"
-  loop:
+    msg: "{{ item.1 }}{{ item.1 }}"
+  with_nested:
     - "{{ output.results }}"
-    - "{{ [zabbix_win_svc_name, zabbix2_win_svc_name] }}"
+    - "{{ [zabbix_agent_svc_name, zabbix2_win_svc_name] }}"
 
 # - name: "Windows | Check Zabbix service"
 #   ansible.windows.win_service:
-#     name: "{{ (item.item.stat.path == zabbix_win_exe_path) | ternary(zabbix_win_svc_name,zabbix2_win_svc_name) }}"
+#     name: "{{ (item.item.stat.path == zabbix_agent_exe_path) | ternary(zabbix_agent_svc_name,zabbix2_win_svc_name) }}"
 #   # register: zabbix_service_info
 #   register: output
 #   when: item.item.stat.exists | bool
@@ -32,7 +32,7 @@
 #   loop: "{{ output.results }}"
 #   loop_control:
 #     # label: "{{ item.display_name | default('Not found') }}"
-#     label: "{{ (item.item.item == zabbix_win_exe_path) | ternary(zabbix_win_svc_name,zabbix2_win_svc_name) }}"
+#     label: "{{ (item.item.item == zabbix_agent_exe_path) | ternary(zabbix_agent_svc_name,zabbix2_win_svc_name) }}"
 
 # # - name: "Windows | Set facts about current zabbix agent service state"
 # #   set_fact:
@@ -40,7 +40,7 @@
 # #   when:
 # #     - item.exists is defined
 # #     - item.exists
-# #     - item.display_name in [zabbix_win_svc_name, zabbix2_win_svc_name]
+# #     - item.display_name in [zabbix_agent_svc_name, zabbix2_win_svc_name]
 # #   with_items: "{{ output.results }}"
 # #   loop_control:
 # #     label: "{{ item.display_name | default('Not found') }}"
@@ -54,7 +54,7 @@
 # #   when:
 # #     - zabbix_service_info.results[0].exists is defined
 # #     - zabbix_service_info.results[0].exists
-# #     - zabbix_service_info.results[0].display_name == zabbix_win_svc_name
+# #     - zabbix_service_info.results[0].display_name == zabbix_agent_svc_name
 
 # # - name: "Windows | Set facts about current zabbix agent service state (agent 2)"
 # #   set_fact:
@@ -80,7 +80,7 @@
 
 # # - name: "Windows | Stop Zabbix agent v1"
 # #   ansible.windows.win_service:
-# #     name: "{{ zabbix_win_svc_name }}"
+# #     name: "{{ zabbix_agent_svc_name }}"
 # #     start_mode: auto
 # #     state: stopped
 # #   when:
@@ -106,12 +106,12 @@
 
 
 # - name: "Windows | Uninstall Zabbix v1"
-#   ansible.windows.win_command: '"{{ zabbix_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix_win_config_name }}" --uninstall'
+#   ansible.windows.win_command: '"{{ zabbix_agent_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix_win_config_name }}" --uninstall'
 #   when:
 #     - zabbix_agent_1_service_exist | default(false)
 
 # - name: "Windows | Uninstall Zabbix v2"
-#   ansible.windows.win_command: '"{{ zabbix2_win_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix2_win_config_name }}" --uninstall'
+#   ansible.windows.win_command: '"{{ zabbix_agent2_exe_path }}" --config "{{ zabbix_win_install_dir }}\conf\{{ zabbix2_win_config_name }}" --uninstall'
 #   when:
 #     - zabbix_agent_2_service_exist | default(false)
 
@@ -156,7 +156,7 @@
 #   community.windows.win_unzip:
 #     src: '{{ zabbix_win_install_dir }}\{{ zabbix_win_package }}'
 #     dest: "{{ zabbix_win_install_dir }}"
-#     creates: "{{ zabbix_win_exe_path }}"
+#     creates: "{{ zabbix_agent_exe_path }}"
 
 # - name: "Windows | Cleanup downloaded Zabbix Agent Zip file"
 #   ansible.windows.win_file:

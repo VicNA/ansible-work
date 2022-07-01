@@ -2,22 +2,57 @@
 # ansible_architecture = 32-bit(?) | 64-bit
 windows_arch: "{{ ansible_architecture | split('-') | first }}"
 
-zabbix_win_download_url: https://cdn.zabbix.com/zabbix/binaries/stable
-zabbix_win_install_dir: 'C:\Zabbix'
+# Какой агент регистрируем в системе (agent1 or agent2)
+register_zabbix_agent: agent2
+# zabbix_agent: agent2
 
-zabbix_win_package: zabbix_agent-{{ zabbix_version }}-windows-amd64-openssl.zip
-zabbix_win_download_link: "{{ zabbix_win_download_url }}/{{ zabbix_version | regex_search('^\\d+\\.\\d+') }}/{{ zabbix_version }}/{{ zabbix_win_package }}"
-zabbix_win_exe_path: '{{ zabbix_win_install_dir }}\bin\zabbix_agentd.exe'
-zabbix_win_svc_name: Zabbix Agent
-zabbix_win_config_name: 'zabbix_agentd.conf'
+zabbix_agent_download_url: https://cdn.zabbix.com/zabbix/binaries/stable
 
-zabbix2_win_package: zabbix_agent2-{{ zabbix_version }}-windows-amd64-openssl-static.zip
-zabbix2_win_download_link: "{{ zabbix_win_download_url }}/{{ zabbix_version | regex_search('^\\d+\\.\\d+') }}/{{ zabbix_version }}/{{ zabbix2_win_package }}"
-zabbix2_win_exe_path: '{{ zabbix_win_install_dir }}\bin\zabbix_agent2.exe'
-zabbix2_win_svc_name: Zabbix Agent 2
-zabbix2_win_config_name: 'zabbix_agent2.conf'
+zabbix_agent_package:
+  agent1: zabbix_agent-{{ zabbix_version_long }}-windows-amd64-openssl.zip
+  agent2: zabbix_agent2-{{ zabbix_version_long }}-windows-amd64-openssl-static.zip
 
-# zabbix_agent_win_logfile: "{{ zabbix_win_install_dir }}\\zabbix_agentd.log"
-# zabbix_agent2_win_logfile: "{{ zabbix_win_install_dir }}\\zabbix_agent2.log"
+zabbix_agent_download_link:
+  agent1: '{{ zabbix_agent_download_url }}/{{ zabbix_version }}/{{ zabbix_version_long }}/{{ zabbix_agent_package.agent1 }}'
+  agent2: '{{ zabbix_agent_download_url }}/{{ zabbix_version }}/{{ zabbix_version_long }}/{{ zabbix_agent_package.agent2 }}'
+
+zabbix_agent_install_dir: C:\Zabbix
+zabbix_agent_install_bin_dir:  '{{ zabbix_agent_install_dir }}\bin'
+zabbix_agent_install_conf_dir: '{{ zabbix_agent_install_dir }}\conf'
+
+zabbix_agent_exe_name:
+  agent1: zabbix_agentd.exe
+  agent2: zabbix_agent2.exe
+
+zabbix_agent_config_name:
+  agent1: zabbix_agentd.conf
+  agent2: zabbix_agent2.conf
+
+zabbix_agent_exe_path:
+  agent1: '{{ zabbix_agent_install_bin_dir }}\{{ zabbix_agent_exe_name.agent1 }}'
+  agent2: '{{ zabbix_agent_install_bin_dir }}\{{ zabbix_agent_exe_name.agent2 }}'
+
+zabbix_agent_conf_path:
+  agent1: '{{ zabbix_agent_install_conf_dir }}\{{ zabbix_agent_config_name.agent1 }}'
+  agent2: '{{ zabbix_agent_install_conf_dir }}\{{ zabbix_agent_config_name.agent2 }}'
+
+zabbix_agent_zip_package:
+  agent1: '{{ zabbix_agent_install_dir }}\{{ zabbix_agent_package.agent1 }}'
+  agent2: '{{ zabbix_agent_install_dir }}\{{ zabbix_agent_package.agent2 }}'
+
+zabbix_agent_service:
+  agent1: Zabbix Agent
+  agent2: Zabbix Agent 2
+
+zabbix_agent_uninstall_command:
+  agent1: '"{{ zabbix_agent_exe_path.agent1 }}" --config "{{ zabbix_agent_conf_path.agent1 }}" --uninstall'
+  agent2: '"{{ zabbix_agent_exe_path.agent2 }}" --config "{{ zabbix_agent_conf_path.agent2 }}" --uninstall'
+
+zabbix_agent_install_command:
+  agent1: '"{{ zabbix_agent_exe_path.agent1 }}" --config "{{ zabbix_agent_conf_path.agent1 }}" --install'
+  agent2: '"{{ zabbix_agent_exe_path.agent2 }}" --config "{{ zabbix_agent_conf_path.agent2 }}" --install'
+
+# zabbix_agent_win_logfile: "{{ zabbix_agent_install_dir }}\\zabbix_agentd.log"
+# zabbix_agent2_win_logfile: "{{ zabbix_agent_install_dir }}\\zabbix_agent2.log"
 # zabbix_agent_win_svc_recovery: true
 # zabbix_win_firewall_management: true
