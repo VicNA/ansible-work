@@ -30,6 +30,7 @@
     not zabbix_agent_directory_info.stat.exists
       or zabbix_agent_file_version.win_file_version.product_version | default(omit) != zabbix_version_long
       or (not zabbix_agent_service_info.exists | default(false) and zabbix_agent == register_zabbix_agent)
+      or zabbix_agent_force_change
 
 - block:
 
@@ -83,7 +84,10 @@
       state: absent
     when: zabbix_agent_download_zip.changed
 
-  # Копировать шаблоны конфигов
+  - name: "Windows | Configure zabbix-agent"
+    ansible.windows.win_template:
+      src: "{{ zabbix_agent_config_name[zabbix_agent] }}.j2"
+      dest: "{{ zabbix_agent_conf_path[zabbix_agent] }}"
 
   - name: "Windows | Check if windows service exist"
     ansible.windows.win_service:
@@ -101,6 +105,7 @@
   ansible.windows.win_service:
     name: "{{ zabbix_agent_service[zabbix_agent] }}"
     start_mode: auto
+    state: started
     failure_actions:
     - type: restart
       delay_ms: 5000

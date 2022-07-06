@@ -1,0 +1,8 @@
+Include = {{ zabbix_agent_conf_path.agent1 }}
+
+LogFile = {{ zabbix_agent_install_dir }}\zabbix2_agentd.log
+
+# локальное хранилище данных метрик
+EnablePersistentBuffer = 1
+PersistentBufferFile = {{ zabbix_agent_install_dir }}\agent.db
+PersistentBufferPeriod = 3d

@@ -1,7 +1,18 @@
 ---
 - hosts: 
   - rebacker
+  # - infra
+  # - "{{ hosts }}"
+  # vars_files:
+  #   - "group_vars/{{ hosts }}.yml"
+  # - mssql
   # - narnia
   roles:
     - role: zabbix_agent
+      zabbix_agent_force_change: true
       zabbix_server_url: https://zabbix.taxnet.ru/zabbix/api_jsonrpc.php
+      zabbix_agent_hostmetadata:
+        - WindowsActive
+        - "{{ 'mssql' in group_names | ternary('MSSQL', omit) }}"
+        - "{{ 'transcrypt' in group_names | ternary('Transcrypt', omit) }}"
+        - "{{ 'declaration' in group_names | ternary('Declaration', omit) }}"

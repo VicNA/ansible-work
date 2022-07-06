@@ -6,6 +6,9 @@ zabbix_version: "{{ zabbix_version_long.split('.')[0:2] | join('.') }}"
 # zabbix_agent_version: []
 zabbix_server_url: []
 
+zabbix_agent_hostmetadata:
+zabbix_agent_force_change: false
+
 # zabbix_agent_service: zabbix-agent
 # zabbix_agent2_service: zabbix-agent2
 # zabbix_agent_package: zabbix-agent2

@@ -1,8 +1,8 @@
 ---
-- name: Set fact Zabbix version
+- name: "Set fact Zabbix version"
   block:
 
-    - name: Get Zabbix server version
+    - name: "Get Zabbix server version"
       local_action: 
         module: ansible.builtin.uri
         url: "{{ zabbix_server_url }}"
@@ -11,7 +11,7 @@
         src: version.json
       register: zabbix_server_version
 
-    - name: Set fact Zabbix version 
+    - name: "Set fact Zabbix version "
       set_fact:
         zabbix_version_long: "{{ zabbix_server_version.json.result }}"
   
