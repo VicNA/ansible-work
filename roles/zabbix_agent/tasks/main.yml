@@ -10,24 +10,41 @@
         body_format: json
         src: version.json
       register: zabbix_server_version
+      when: zabbix_server_url | default(false)
 
     - name: "Set fact Zabbix version "
       set_fact:
         zabbix_version_long: "{{ zabbix_server_version.json.result }}"
+      when: zabbix_server_version.json | default(false)
   
-  when: zabbix_version_long | length == 0
+  when: not zabbix_version_long | default(false)
+
+- block:
+
+    - name: "Shut down if the required variables are not overridden"
+      debug:
+        msg: "The variable zabbix_version_long is empty"
+
+    - name: "Early completion execution"
+      meta: end_play
+
+  when: not zabbix_version_long | default(false)
 
 - name: Include OS-specific variables
   include_vars: "{{ ansible_os_family | lower }}.yml"
 
-- name: Include OS-specific tasks 1
-  include_tasks: "{{ ansible_os_family | lower }}3.yml"
-  vars:
-    zabbix_agent: agent1
-    zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"
+- block:
 
-- name: Include OS-specific tasks 2
-  include_tasks: "{{ ansible_os_family | lower }}3.yml"
-  vars:
-    zabbix_agent: agent2
-    zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"
+  - name: Include OS-specific tasks 1
+    include_tasks: "{{ ansible_os_family | lower }}.yml"
+    vars:
+      zabbix_agent: agent1
+      zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"
+
+  - name: Include OS-specific tasks 2
+    include_tasks: "{{ ansible_os_family | lower }}.yml"
+    vars:
+      zabbix_agent: agent2
+      zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"
+
+  when: ansible_os_family == 'Windows'

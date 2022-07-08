@@ -1,5 +1,2 @@
 ---
-
-# zabbix_version: ""
-# zabbix_agent_version: ""
-# zabbix_server_url: https://zabbix.taxnet.ru/zabbix/api_jsonrpc.php
+zabbix_version: "{{ zabbix_version_long.split('.')[0:2] | join('.') }}"

@@ -4,7 +4,6 @@ windows_arch: "{{ ansible_architecture | split('-') | first }}"
 
 # Какой агент регистрируем в системе (agent1 or agent2)
 register_zabbix_agent: agent2
-# zabbix_agent: agent2
 
 zabbix_agent_download_url: https://cdn.zabbix.com/zabbix/binaries/stable
 
@@ -51,8 +50,3 @@ zabbix_agent_uninstall_command:
 zabbix_agent_install_command:
   agent1: '"{{ zabbix_agent_exe_path.agent1 }}" --config "{{ zabbix_agent_conf_path.agent1 }}" --install'
   agent2: '"{{ zabbix_agent_exe_path.agent2 }}" --config "{{ zabbix_agent_conf_path.agent2 }}" --install'
-
-# zabbix_agent_win_logfile: "{{ zabbix_agent_install_dir }}\\zabbix_agentd.log"
-# zabbix_agent2_win_logfile: "{{ zabbix_agent_install_dir }}\\zabbix_agent2.log"
-# zabbix_agent_win_svc_recovery: true
-# zabbix_win_firewall_management: true
