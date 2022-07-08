@@ -20,15 +20,13 @@
   ansible.windows.win_service:
     name: "{{ zabbix_agent_service[zabbix_agent] }}"
   register: zabbix_agent_service_info
-  # when: zabbix_agent_info.stat.exists | default(false)
 
 - name: "Windows | Set fact about {{ zabbix_agent_name }} version change requirement"
   set_fact:
     zabbix_agent_version_change: true
-    # - zabbix_agent_file_version.win_file_version.product_version | default('empty') != zabbix_version_long
   when: >
     not zabbix_agent_directory_info.stat.exists
-      or zabbix_agent_file_version.win_file_version | default(omit) != zabbix_version_long
+      or zabbix_agent_file_version.win_file_version.product_version | default(omit) != zabbix_version_long
       or (not zabbix_agent_service_info.exists | default(false) and zabbix_agent == register_zabbix_agent)
       or zabbix_agent_force_change
 

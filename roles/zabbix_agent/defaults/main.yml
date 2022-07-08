@@ -1,12 +1,18 @@
 ---
-# Variables that need to be redefined
+#######################################
+# Variables that need to be redefined #
+#######################################
 
 # The full version of Zabbix that will be installed
 zabbix_version_long:
 
+# Full name of the Zabbix server
+zabbix_server_fqdn:
+
 # Zabbix server address for sending api requests
 zabbix_server_url:
 
+# Meta data for Zabbix agent
 zabbix_agent_hostmetadata:
 
 # Forced installation of Zabbix agent (optional)

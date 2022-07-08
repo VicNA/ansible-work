@@ -1,8 +1,10 @@
 HostnameItem = system.hostname[host]
+{% if zabbix_agent_hostmetadata | default(false) %}
 HostMetadata = {{ zabbix_agent_hostmetadata | select() }}
+{% endif %}
 LogFile = {{ zabbix_agent_install_dir }}\zabbix_agentd.log
 
-Server = 127.0.0.1,zabbix.taxnet.ru
-ServerActive = zabbix.taxnet.ru
+Server = 127.0.0.1,{{ zabbix_server_fqdn }}
+ServerActive = {{ zabbix_server_fqdn }}
 
 RefreshActiveChecks = 900
