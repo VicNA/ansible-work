@@ -1,5 +1,5 @@
 ansible_user: ansible-v@OFFICE.TAXNET.RU
-ansible_password: '{{vault_domain_password}}'
+ansible_password: '{{ vault_domain_password }}'
 ansible_connection: winrm
 ansible_winrm_transport: kerberos
 ansible_winrm_server_cert_validation: ignore
