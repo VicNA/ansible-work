@@ -33,18 +33,7 @@
 - name: Include OS-specific variables
   include_vars: "{{ ansible_os_family | lower }}.yml"
 
-- block:
 
-  - name: Include OS-specific tasks 1
-    include_tasks: "{{ ansible_os_family | lower }}.yml"
-    vars:
-      zabbix_agent: agent1
-      zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"
-
-  - name: Include OS-specific tasks 2
-    include_tasks: "{{ ansible_os_family | lower }}.yml"
-    vars:
-      zabbix_agent: agent2
-      zabbix_agent_name: "{{ zabbix_agent_service[zabbix_agent] }}"
-
+- name: Include OS-specific tasks
+  include_tasks: "{{ ansible_os_family | lower }}.yml"
   when: ansible_os_family == 'Windows'

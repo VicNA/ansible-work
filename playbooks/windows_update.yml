@@ -1,0 +1,21 @@
+---
+- hosts: rebacker
+
+  tasks:
+    - name: Search-only, return list of found updates (if any), log to C:\ansible_wu.txt
+      ansible.windows.win_updates:
+        state: searched
+        category_names: '*'
+        # server_selection: windows_update
+        skip_optional: no
+        # log_path: C:\ansible_wu.txt
+      register: windows_updates
+
+    # - name: Run command Get-WUList
+    #   ansible.windows.win_shell: Get-WUList -MicrosoftUpdate | Format-List
+    #   register: windows_updates
+
+    - name: Debug
+      debug:
+        var: windows_updates
+      

@@ -5,7 +5,7 @@
   tasks:
     - name: Get windows service
       ansible.windows.win_service_info:
-        name: Zabbix Agent 2
+        name: MpsSvc
       register: service_info
 
     - debug:

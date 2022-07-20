@@ -2,7 +2,7 @@
 # ansible_architecture = 32-bit(?) | 64-bit
 windows_arch: "{{ ansible_architecture | split('-') | first }}"
 
-# Какой агент регистрируем в системе (agent1 or agent2)
+# Регистрируемая службы Zabbix agent'а в системе (agent1 or agent2)
 register_zabbix_agent: agent2
 
 zabbix_agent_download_url: https://cdn.zabbix.com/zabbix/binaries/stable

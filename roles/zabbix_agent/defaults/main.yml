@@ -17,3 +17,7 @@ zabbix_agent_hostmetadata:
 
 # Forced installation of Zabbix agent (optional)
 zabbix_agent_force_change: false
+
+zabbix_firewall_name: 'Admin: Zabbix'
+zabbix_firewall_group: Taxnet
+zabbix_agent_listenport: 10050
