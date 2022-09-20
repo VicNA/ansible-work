@@ -2,3 +2,4 @@ ansible_user: ansible-v
 ansible_password: '{{ vault_local_password }}'
 ansible_connection: winrm
 ansible_winrm_transport: ntlm
+ansible_port: 5986
