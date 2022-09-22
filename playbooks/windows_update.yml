@@ -1,6 +1,6 @@
 ---
 - name: Installing Windows update
-  hosts: "{{ hostvar | default('nothing') }}"
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts_group"
   gather_facts: false
 
   tasks:
