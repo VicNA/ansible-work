@@ -1,0 +1,31 @@
+---
+- name: Installing or updating programs from the chocolatey repository
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts_group"
+  gather_facts: false
+  vars:
+    process:
+      install: present
+      upgrade: latest
+      uninstall: absent
+    state: "{{ process[task | default('install')] }}"
+
+  tasks:
+
+    - name: "{{ task | default('install') | title }} Chocolatey"
+      chocolatey.chocolatey.win_chocolatey:
+        name: chocolatey
+        state: "{{ state }}"
+
+    - name: "{{ task | default('install') | title }} Notepad++"
+      chocolatey.chocolatey.win_chocolatey:
+        name: notepadplusplus.install
+        state: "{{ state }}"
+
+    - name: "{{ task | default('install') | title }} 7zip"
+      chocolatey.chocolatey.win_chocolatey:
+        name: 7zip.install
+        state: "{{ state }}"
+
+    # - name: "Debug"
+    #   ansible.builtin.debug:
+    #     var: windows_updates.updates

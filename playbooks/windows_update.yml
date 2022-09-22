@@ -16,4 +16,4 @@
 
     # - name: "Debug"
     #   ansible.builtin.debug:
-    #     var: windows_updates.updates
+    #     var: windows_updates.updates[*].title
