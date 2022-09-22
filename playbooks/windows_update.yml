@@ -1,21 +1,19 @@
 ---
-- hosts: rebacker
+- name: Installing Windows update
+  hosts: "{{ hostvar | default('nothing') }}"
+  gather_facts: false
 
   tasks:
-    - name: Search-only, return list of found updates (if any), log to C:\ansible_wu.txt
+
+    - name: Install all updates and reboot
       ansible.windows.win_updates:
-        state: searched
+        state: installed
         category_names: '*'
-        # server_selection: windows_update
-        skip_optional: no
-        # log_path: C:\ansible_wu.txt
-      register: windows_updates
+        reboot: true
+        reboot_timeout: 1800
+        log_path: C:\ansible_wu.txt
+      # register: windows_updates
 
-    # - name: Run command Get-WUList
-    #   ansible.windows.win_shell: Get-WUList -MicrosoftUpdate | Format-List
-    #   register: windows_updates
-
-    - name: Debug
-      debug:
-        var: windows_updates
-      
+    # - name: "Debug"
+    #   ansible.builtin.debug:
+    #     var: windows_updates.updates
