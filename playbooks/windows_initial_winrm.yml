@@ -1,6 +1,6 @@
 ---
 - name: Initial WinRM setup
-  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts_group"
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
 
   tasks:

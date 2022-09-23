@@ -1,6 +1,6 @@
 ---
 - name: Installing or updating programs from the chocolatey repository
-  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts_group"
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
   vars:
     process:
