@@ -1,0 +1,30 @@
+---
+- name: Initial WinRM setup
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts_group"
+  gather_facts: false
+
+  tasks:
+
+    - name: Download and run ConfigureRemotingForAnsible.ps1 to setup WinRM
+      community.windows.psexec:
+        hostname: '{{ hostvars[inventory_hostname]["ansible_host"] | default(inventory_hostname) }}'
+        # connection_username: '{{ ansible_user }}'
+        connection_username: wsadmin
+        # connection_password: '{{ ansible_password }}'
+        connection_password: pAp1ru$
+        # encrypt: true
+        executable: powershell.exe
+        arguments: '-'
+        stdin: |
+          Write-Host Hello World
+          Write-Error Error Message
+          exit 0
+      #   stdin: |
+      #     $ErrorActionPreference = "Stop"
+      #     $sec_protocols = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::SystemDefault
+      #     $sec_protocols = $sec_protocols -bor [Net.SecurityProtocolType]::Tls12
+      #     [Net.ServicePointManager]::SecurityProtocol = $sec_protocols
+      #     $url = "https://github.com/ansible/ansible/raw/devel/examples/scripts/ConfigureRemotingForAnsible.ps1"
+      #     Invoke-Expression ((New-Object Net.WebClient).DownloadString($url))
+      #     exit
+      # delegate_to: localhost
