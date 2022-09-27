@@ -8,5 +8,5 @@
         name: MpsSvc
       register: service_info
 
-    - debug:
+    - debug: debug
         var: service_info.services
