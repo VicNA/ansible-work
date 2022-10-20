@@ -1,0 +1,16 @@
+---
+- name: Search for Windows update
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
+  gather_facts: false
+
+  tasks:
+
+    - name: Сheck if updates are available
+      ansible.windows.win_updates:
+        state: searched
+        category_names: '*'
+      register: windows_updates
+
+    - name: Debug
+      ansible.builtin.debug:
+        var: windows_updates.updates[*].title
