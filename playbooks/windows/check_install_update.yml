@@ -1,5 +1,5 @@
 ---
-- name: Search for Windows update
+- name: Checking and installing available updates
   hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
   vars:
@@ -34,7 +34,7 @@
       when: windows_updates.found_update_count > 0
       # register: windows_updates
 
-    - name: List of updates
+    - name: List of installed updates
       ansible.builtin.debug:
         var: windows_updates.updates[*].title
       when: windows_updates.installed_update_count > 0
