@@ -2,15 +2,39 @@
 - name: Search for Windows update
   hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
+  vars:
+    update_states:
+      search: searched
+      install: installed
+    update_state: "{{ update_states[state | default('search')] | default(update_states.search) }}"
 
   tasks:
 
-    - name: Сheck if updates are available
+    - name: Search for available updates
       ansible.windows.win_updates:
         state: searched
         category_names: '*'
       register: windows_updates
 
-    - name: Debug
+    - name: Reboot the host if a reboot is required
+      # ansible.windows.win_reboot:
+      ansible.builtin.debug:
+        msg: "Reboot host"
+      when: windows_updates.reboot_required
+
+    - name: Installing available updates and reboot
+      ansible.builtin.debug:
+        var: windows_updates
+      # ansible.windows.win_updates:
+      #   state: installed
+      #   category_names: '*'
+      #   reboot: true
+      #   reboot_timeout: 1800
+      #   log_path: C:\ansible_wu.txt
+      when: windows_updates.found_update_count > 0
+      # register: windows_updates
+
+    - name: List of updates
       ansible.builtin.debug:
         var: windows_updates.updates[*].title
+      when: windows_updates.installed_update_count > 0
