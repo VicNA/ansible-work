@@ -31,7 +31,9 @@
       #   reboot: true
       #   reboot_timeout: 1800
       #   log_path: C:\ansible_wu.txt
-      when: windows_updates.found_update_count > 0
+      when:
+        - windows_updates.found_update_count > 0
+        - update_state == update_states.install
       # register: windows_updates
 
     - name: List of installed updates
