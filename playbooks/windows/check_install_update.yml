@@ -41,7 +41,7 @@
         reboot_timeout: 3600
       when: windows_updates.reboot_required
 
-    # - name: List of installed updates
-    #   ansible.builtin.debug:
-    #     var: windows_updates.updates[*].title
-    #   when: windows_updates.installed_update_count > 0
+    - name: List of installed updates
+      ansible.builtin.debug:
+        var: windows_updates.updates[*].title
+      when: windows_updates.updates | length > 0
