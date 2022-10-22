@@ -9,6 +9,11 @@
     update_state: "{{ update_states[state | default('search')] | default(update_states.search) }}"
 
   tasks:
+    
+    - name: Delete the log file of the previous update installation
+      ansible.windows.win_file:
+        path: C:\ansible_wu.txt
+        state: absent
 
     - name: Search for available updates
       ansible.windows.win_updates:
@@ -17,26 +22,26 @@
       register: windows_updates
 
     - name: Reboot the host if a reboot is required
-      # ansible.windows.win_reboot:
-      ansible.builtin.debug:
-        msg: "Reboot host"
+      ansible.windows.win_reboot:
+        reboot_timeout: 3600
       when: windows_updates.reboot_required
 
     - name: Installing available updates and reboot
-      ansible.builtin.debug:
-        var: windows_updates
-      # ansible.windows.win_updates:
-      #   state: installed
-      #   category_names: '*'
-      #   reboot: true
-      #   reboot_timeout: 1800
-      #   log_path: C:\ansible_wu.txt
+      ansible.windows.win_updates:
+        state: installed
+        category_names: '*'
+        log_path: C:\ansible_wu.txt
       when:
         - windows_updates.found_update_count > 0
         - update_state == update_states.install
-      # register: windows_updates
+      register: windows_updates
 
-    - name: List of installed updates
-      ansible.builtin.debug:
-        var: windows_updates.updates[*].title
-      when: windows_updates.installed_update_count > 0
+    - name: Reboot the host if a reboot is required
+      ansible.windows.win_reboot:
+        reboot_timeout: 3600
+      when: windows_updates.reboot_required
+
+    # - name: List of installed updates
+    #   ansible.builtin.debug:
+    #     var: windows_updates.updates[*].title
+    #   when: windows_updates.installed_update_count > 0
