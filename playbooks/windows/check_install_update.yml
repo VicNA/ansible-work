@@ -22,6 +22,7 @@
       register: updates_searched
 
     - name: Installing available updates and reboot
+      when: update_state == update_states.install
       block:
 
         - name: Reboot the host if a reboot is required
@@ -29,7 +30,7 @@
             reboot_timeout: 3600
           when: updates_searched.reboot_required
 
-        - name: Installing available updates and reboot
+        - name: Installing available updates
           ansible.windows.win_updates:
             state: installed
             category_names: '*'
@@ -41,7 +42,6 @@
             reboot_timeout: 3600
           when: updates_installed.reboot_required
 
-      when: update_state == update_states.install
 
     - name: Set a list of available or installed updates
       ansible.builtin.set_fact:
