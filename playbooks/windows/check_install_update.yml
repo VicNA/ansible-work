@@ -3,10 +3,11 @@
   hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
   vars:
-    update_states:
+    playbook_states:
       search: searched
+      reboot: required
       install: installed
-    update_state: "{{ update_states[state | default('search')] | default(update_states.search) }}"
+    update_state: "{{ playbook_states[state | default('search')] | default(playbook_states.search) }}"
 
   tasks:
 
@@ -21,14 +22,16 @@
         category_names: '*'
       register: updates_searched
 
-    - name: Installing available updates and reboot
-      when: update_state == update_states.install
-      block:
+    - name: Reboot the host if a reboot is required
+      ansible.windows.win_reboot:
+        reboot_timeout: 5400
+      when:
+        - update_state == update_state.reboot
+        - updates_searched.reboot_required
 
-        - name: Reboot the host if a reboot is required
-          ansible.windows.win_reboot:
-            reboot_timeout: 3600
-          when: updates_searched.reboot_required
+    - name: Installing available updates and reboot
+      when: update_state == playbook_states.install
+      block:
 
         - name: Installing available updates
           ansible.windows.win_updates:
@@ -39,17 +42,17 @@
 
         - name: Reboot the host if a reboot is required
           ansible.windows.win_reboot:
-            reboot_timeout: 3600
+            reboot_timeout: 5400
           when: updates_installed.reboot_required
 
 
     - name: Set a list of available or installed updates
       ansible.builtin.set_fact:
         list_updates: "{{ list_updates | default([]) + [item.value.title] }}"
-      loop: "{{ updates_installed.updates | default(updates_searched.updates) | dict2items }}"
+      loop: "{{ (updates_installed.updates | default(updates_searched.updates)) | dict2items }}"
       no_log: true
 
     - name: List of available or installed updates
       ansible.builtin.debug:
         # var: list_updates
-        msg: "{{ list_updates }}"
+        msg: "{{ list_updates | default('no updates') }}"
