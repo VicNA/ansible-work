@@ -1,0 +1,35 @@
+---
+- name: Updating checksums
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
+  gather_facts: false
+  vars:
+    cpverify: C:\Program Files (x86)\Crypto Pro\CSP\cpverify.exe
+
+  tasks:
+
+    - name: Is CryptoPro installed
+      ansible.builtin.win_stat:
+        path: "{{ cpverify }}"
+      register: file_info
+
+    - name: Verify files integrity for files enumerated in registry
+      ansible.windows.win_shell: '"{{ cpverify }}" -rv'
+      args:
+        executable: cmd
+      when: file_info.stat.exists
+      register: result_verify
+      failed_when: result_verify.rc not in [0, 2]
+
+    - name: Calculate hash values using algid hash algorithm for files enumerated in registry
+      ansible.windows.win_shell: '"{{ cpverify }}" -rm'
+      args:
+        executable: cmd
+      when:
+        - file_info.stat.exists
+        - result_verify.stderr is search('fail..')
+      register: result_command
+      failed_when: result_command.rc not in [0, 2]
+
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     var: result_command.cmd
