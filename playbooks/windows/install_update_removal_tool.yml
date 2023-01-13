@@ -2,6 +2,8 @@
 - name: Installing Windows update
   hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
+  vars:
+    update_kb: KB890830
 
   tasks:
 
@@ -9,11 +11,10 @@
       ansible.windows.win_updates:
         state: installed
         category_names: '*'
-        reboot: true
-        reboot_timeout: 1800
-        log_path: C:\ansible_wu.txt
+        accept_list:
+          - "{{ update_kb }}"
       # register: windows_updates
 
     # - name: "Debug"
     #   ansible.builtin.debug:
-    #     var: windows_updates.updates[*].title
+    #     msg: "{{ windows_updates.updates | dict2items | json_query('[].value.title') }}"
