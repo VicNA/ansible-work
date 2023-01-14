@@ -20,6 +20,8 @@
       ansible.windows.win_updates:
         state: searched
         category_names: '*'
+        reject_list:
+          - Windows Malicious Software Removal Tool
       register: updates_searched
 
     - name: Reboot the host if a reboot is required
@@ -46,13 +48,8 @@
           when: updates_installed.reboot_required
 
 
-    - name: Set a list of available or installed updates
-      ansible.builtin.set_fact:
-        list_updates: "{{ list_updates | default([]) + [item.value.title] }}"
-      loop: "{{ (updates_installed.updates | default(updates_searched.updates)) | dict2items }}"
-      no_log: true
-
     - name: List of available or installed updates
       ansible.builtin.debug:
-        # var: list_updates
-        msg: "{{ list_updates | default('no updates') }}"
+        msg: "{{ updades | json_query('[].value.title') | default('no updates') }}"
+      vars:
+        updades: "{{ (updates_installed.updates | default(updates_searched.updates)) | dict2items }}"
