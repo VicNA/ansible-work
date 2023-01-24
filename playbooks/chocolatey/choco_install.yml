@@ -1,0 +1,19 @@
+---
+- name: Checks the availability of program updates
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
+  gather_facts: false
+  vars:
+    packages:
+      - chocolatey
+      - 7zip.install
+      - notepadplusplus.install
+
+  tasks:
+
+    - name: Test
+      chocolatey.chocolatey.win_chocolatey:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}"
+      # loop_control:
+      #   label: "{{ item }}"
