@@ -21,15 +21,15 @@
         state: searched
         category_names: '*'
         reject_list:
-          - Windows Malicious Software Removal Tool
-      register: updates_searched
+          - KB890830
+      register: available_updates
 
     - name: Reboot the host if a reboot is required
       ansible.windows.win_reboot:
         reboot_timeout: 5400
       when:
         - update_state == playbook_states.reboot
-        - updates_searched.reboot_required
+        - available_updates.reboot_required
 
     - name: Installing available updates and reboot
       when: update_state == playbook_states.install
@@ -39,6 +39,8 @@
           ansible.windows.win_updates:
             state: installed
             category_names: '*'
+            reject_list:
+              - Windows Malicious Software Removal Tool
             log_path: C:\ansible_wu.txt
           register: updates_installed
 
@@ -52,4 +54,4 @@
       ansible.builtin.debug:
         msg: "{{ updades | json_query('[].value.title') | default('no updates') }}"
       vars:
-        updades: "{{ (updates_installed.updates | default(updates_searched.updates)) | dict2items }}"
+        updades: "{{ (updates_installed.updates | default(available_updates.updates)) | dict2items }}"

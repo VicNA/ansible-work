@@ -7,7 +7,7 @@
 
   tasks:
 
-    - name: Install all updates and reboot
+    - name: Install Windows Malicious Software Removal Tool (MSRT)
       ansible.windows.win_updates:
         state: installed
         category_names: '*'

@@ -8,7 +8,7 @@
   tasks:
 
     - name: Is CryptoPro installed
-      ansible.builtin.win_stat:
+      ansible.windows.win_stat:
         path: "{{ cpverify }}"
       register: file_info
 

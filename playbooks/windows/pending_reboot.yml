@@ -1,0 +1,16 @@
+---
+- name: Pending reboot
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
+  gather_facts: false
+
+  tasks:
+
+    - name: Check the pending reboot
+      ansible.windows.win_shell: "(Test-PendingReboot).IsRebootPending"
+      register: result
+
+    - name: "Debug"
+      ansible.builtin.debug:
+        msg: "IsRebootPending = {{ pending_reboot }}"
+      vars:
+        pending_reboot: "{{ result.stdout | trim | bool }}"

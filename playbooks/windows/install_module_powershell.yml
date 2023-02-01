@@ -1,0 +1,21 @@
+---
+- name: Installing the powershell module
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
+  gather_facts: false
+  vars:
+    psmodules:
+      - PowerShellGet
+      - PendingReboot
+
+  tasks:
+
+    - name: Install the powershell module
+      community.windows.win_psmodule:
+        name: "{{ item }}"
+        state: latest
+      loop: "{{ psmodules }}"
+      # register: result
+
+    # - name: "Debug"
+    #   ansible.builtin.debug:
+    #     msg: "{{ result }}"
