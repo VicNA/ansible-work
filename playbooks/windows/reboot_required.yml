@@ -10,9 +10,7 @@
       register: pending_reboot
       changed_when: false
 
-    - name: "Debug"
-      ansible.builtin.debug:
-        msg: "Reboot required = {{ reboot_required }}"
-      when: reboot_required
-      vars:
-        reboot_required: "{{ pending_reboot.stdout | trim | bool }}"
+    - name: Reboot the host if a reboot is required
+      ansible.windows.win_reboot:
+        reboot_timeout: 5400
+      when: pending_reboot.stdout | trim | bool
