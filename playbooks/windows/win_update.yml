@@ -47,7 +47,7 @@
             state: installed
             category_names: '*'
             # accept_list:
-            #   - "{{ available_updates.updates | dict2items | json_query('[].value.kb') }}"
+            #   - "{{ available_updates.updates | dict2items | json_query('[].value.kb') | flatten }}"
             # reject_list:
             #   - Windows Malicious Software Removal Tool
             log_path: C:\ansible_wu.txt
@@ -61,6 +61,6 @@
 
     - name: List of available or installed updates
       ansible.builtin.debug:
-        msg: "{{ updades | json_query('[].value.kb') | default('no updates') }}"
+        msg: "{{ updades | json_query('[].value.title') | flatten | default('no updates') }}"
       vars:
         updades: "{{ (updates_installed.updates | default(available_updates.updates)) | dict2items }}"
