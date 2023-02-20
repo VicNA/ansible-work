@@ -46,8 +46,7 @@
           ansible.windows.win_updates:
             state: installed
             category_names: '*'
-            # accept_list:
-            #   - "{{ available_updates.updates | dict2items | json_query('[].value.kb') | flatten }}"
+            accept_list: "{{ available_updates.updates | dict2items | json_query('[].value.kb') | flatten }}"
             # reject_list:
             #   - Windows Malicious Software Removal Tool
             log_path: C:\ansible_wu.txt
