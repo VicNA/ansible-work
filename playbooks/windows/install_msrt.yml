@@ -1,5 +1,5 @@
 ---
-- name: Installing Windows update
+- name: Windows Malicious Software Removal Tool (MSRT)
   hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
   vars:
@@ -13,8 +13,3 @@
         category_names: '*'
         accept_list:
           - "{{ update_kb }}"
-      # register: windows_updates
-
-    # - name: "Debug"
-    #   ansible.builtin.debug:
-    #     msg: "{{ windows_updates.updates | dict2items | json_query('[].value.title') }}"
