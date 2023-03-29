@@ -1,0 +1,5 @@
+---
+win_update_category_names: '*'
+
+win_update_reject_list: []
+win_update_accept_list: []

@@ -3,11 +3,11 @@
   hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
   gather_facts: false
   vars:
-    playbook_states:
+    states:
       search: searched
       reboot: required
       install: installed
-    update_state: "{{ playbook_states[state | default('search')] | default(playbook_states.search) }}"
+    playbook_state: "{{ states[state | default('search')] | default(states.search) }}"
     update_kb: KB890830
 
   tasks:
@@ -21,7 +21,7 @@
       ansible.windows.win_reboot:
         reboot_timeout: 5400
       when:
-        - update_state == playbook_states.install
+        - playbook_state == states.install
         - is_pending_reboot.stdout | trim | bool
 
     - name: Delete the log file of the previous update installation
@@ -29,7 +29,7 @@
         path: C:\ansible_wu.txt
         state: absent
       when:
-        - update_state == playbook_states.install
+        - playbook_state == states.install
 
     - name: Search for available updates
       ansible.windows.win_updates:
@@ -40,7 +40,7 @@
       register: available_updates
 
     - name: Installing available updates and reboot
-      when: update_state == playbook_states.install
+      when: playbook_state == states.install
       block:
 
         - name: Installing available updates

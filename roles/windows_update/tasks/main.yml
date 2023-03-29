@@ -1,0 +1,58 @@
+---
+- name: Check the pending reboot
+  ansible.windows.win_shell: "(Test-PendingReboot).IsRebootPending"
+  register: is_pending_reboot
+  changed_when: false
+  tags:
+    - install
+
+- name: Reboot the host if a reboot is required
+  ansible.windows.win_reboot:
+    reboot_timeout: 5400
+  when:
+    - is_pending_reboot.stdout | trim | bool
+  tags:
+    - install
+
+- name: Delete the log file of the previous update installation
+  ansible.windows.win_file:
+    path: C:\ansible_wu.txt
+    state: absent
+  tags: 
+    - install
+
+- name: Search for available updates
+  ansible.windows.win_updates:
+    state: searched
+    category_names: "{{ win_update_category_names }}"
+    accept_list: "{{ win_update_accept_list }}"
+    reject_list: "{{ win_update_reject_list }}"
+  register: available_updates
+  tags: 
+    - search
+
+- name: Installing available updates
+  ansible.windows.win_updates:
+    state: installed
+    category_names: "{{ win_update_category_names }}"
+    accept_list: "{{ win_update_accept_list }}"
+    reject_list: "{{ win_update_reject_list }}"
+    log_path: C:\ansible_wu.txt
+  register: installed_updates
+  tags: 
+    - install
+
+- name: Reboot the host if a reboot is required
+  ansible.windows.win_reboot:
+    reboot_timeout: 5400
+  when: installed_updates.reboot_required
+  tags: 
+    - install
+
+- name: List of available updates
+  ansible.builtin.debug:
+    msg: "{{ updades | json_query('[].value.title') | flatten | default('no updates') }}"
+  vars:
+    updades: "{{ available_updates.updates | dict2items }}"
+  tags: 
+    - search
