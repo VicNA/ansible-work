@@ -1,0 +1,8 @@
+ad_group:
+  hosts:
+    active:
+      ansible_host: active.office.taxnet.ru
+    bright:
+      ansible_host: bright.office.taxnet.ru
+    heaven:
+      ansible_host: heaven.office.taxnet.ru
