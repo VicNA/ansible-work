@@ -16,13 +16,14 @@
       ansible.windows.win_shell: "(Test-PendingReboot).IsRebootPending"
       register: is_pending_reboot
       changed_when: false
+      ignore_errors: true
 
     - name: Reboot the host if a reboot is required
       ansible.windows.win_reboot:
         reboot_timeout: 5400
       when:
         - playbook_state == states.install
-        - is_pending_reboot.stdout | trim | bool
+        - is_pending_reboot.stdout | default(false) | trim | bool
 
     - name: Delete the log file of the previous update installation
       ansible.windows.win_file:
@@ -47,7 +48,8 @@
           ansible.windows.win_updates:
             state: installed
             category_names: '*'
-            accept_list: "{{ available_updates.updates | dict2items | json_query('[].value.kb') | flatten }}"
+            reject_list:
+              - "{{ update_kb }}"
             log_path: C:\ansible_wu.txt
           register: installed_updates
 
