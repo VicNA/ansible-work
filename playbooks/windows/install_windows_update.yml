@@ -1,0 +1,44 @@
+---
+- name: Installing available updates
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
+  gather_facts: false
+  vars:
+    update_kb: KB890830
+
+  tasks:
+
+    - name: Check the pending reboot
+      ansible.windows.win_shell: "(Test-PendingReboot).IsRebootPending"
+      register: is_pending_reboot
+      changed_when: false
+      ignore_errors: true
+
+    - name: Reboot the host if a reboot is required
+      ansible.windows.win_reboot:
+        reboot_timeout: 5400
+        post_reboot_delay: 120
+      when:
+        - is_pending_reboot.stdout | default(false) | trim | bool
+
+    - name: Delete the log file of the previous update installation
+      ansible.windows.win_file:
+        path: C:\ansible_wu.txt
+        state: absent
+
+    - name: Installing available updates
+      ansible.windows.win_updates:
+        state: installed
+        category_names: '*'
+        reject_list:
+          - "{{ update_kb }}"
+        log_path: C:\ansible_wu.txt
+      register: installed_updates
+      retries: 3
+      delay: 60
+      until: installed_updates is not failed 
+
+
+    - name: Reboot the host if a reboot is required
+      ansible.windows.win_reboot:
+        reboot_timeout: 5400
+      when: installed_updates.reboot_required
