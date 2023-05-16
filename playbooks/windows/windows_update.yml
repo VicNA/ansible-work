@@ -1,0 +1,22 @@
+---
+- name: Checking available updates
+  hosts: "{{ hostvar | default('nothing') }}:!disabled_hosts"
+  gather_facts: false
+  vars:
+    update_kb: KB890830
+
+  tasks:
+
+    - name: Search for available updates
+      ansible.windows.win_updates:
+        state: searched
+        category_names: '*'
+        reject_list:
+          - "{{ update_kb }}"
+      register: available_updates
+
+    - name: List of available or installed updates
+      ansible.builtin.debug:
+        msg: "{{ updades | json_query('[].value.title') | flatten | default('no updates') }}"
+      vars:
+        updades: "{{ available_updates.updates | dict2items }}"
